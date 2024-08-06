@@ -1,0 +1,38 @@
+name: action-jira-comment
+
+description: Post A Comment In A JIRA Ticket
+
+inputs:
+  ticket-id:
+    description: Ticket ID
+    required: true
+  comment:
+    description: Actual Comment
+    required: true
+  jira-username:
+    description: Username Of JIRA Account
+    required: true
+  jira-token:
+    description: API Token
+    required: true
+  jira-base-url:
+    description: Base URL Of JIRA Instance
+    required: true
+
+outputs:
+  ticket-exists:
+    description: If Ticket Exists
+    value: ${{steps.check-ticket.outputs.exists}}
+
+runs:
+  using: composite
+  steps:
+    - name: Check If Ticket Exists
+      id: check-ticket
+      shell: bash
+      env:
+        JIRA_USER_EMAIL: ${{inputs.jira-username}}
+        JIRA_API_TOKEN: ${{inputs.jira-token}}
+        JIRA_BASE_URL: ${{inputs.jira-base-url}}
+        TICKET_ID: ${{inputs.ticket-id}}
+      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
