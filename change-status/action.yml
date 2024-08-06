@@ -1,13 +1,10 @@
-name: action-jira-comment
+name: action-jira-change-issue-status
 
-description: Post A Comment In A JIRA Ticket
+description: Change Issue Status
 
 inputs:
   ticket-id:
     description: Ticket ID
-    required: true
-  comment:
-    description: Actual Comment
     required: true
   jira-username:
     description: Username Of JIRA Account
@@ -48,18 +45,13 @@ runs:
         TICKET_ID: ${{inputs.ticket-id}}
       run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
     
-    - name: Comment on Jira ticket
+    - name: Change Status Of JIRA Ticket
       if: steps.check-ticket.outputs.exists == 'true'
       shell: bash
       env:
         JIRA_BASE_URL: ${{ inputs.jira-base-url }}
         JIRA_API_TOKEN: ${{ inputs.jira-token }}
         TICKET_ID: ${{ inputs.ticket-id }}
-        COMMENT: ${{ inputs.comment }}
-      run: |
-        jira comment --noedit "$TICKET_ID" --comment="$COMMENT"
-        exit_code=$?
-        if [[ $exit_code -ne 0 ]]; then
-          echo "::error::non-zero exit code: $exit_code"
-          exit 1
-        fi
+      run: ${{github.action_path}}/../scripts/change-status.sh "$TICKET_ID"
+
+    
