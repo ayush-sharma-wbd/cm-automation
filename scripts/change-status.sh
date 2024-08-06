@@ -10,10 +10,10 @@ response=$(curl \
   "${JIRA_BASE_URL}/rest/api/2/issue/${TICKET_ID}/transitions")
 
 # Get Transitions
-response=$(curl \
-  -u "${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}" \
-  -H 'Accept: application/json' \
-  "${JIRA_BASE_URL}/rest/api/2/issue/${TICKET_ID}/transitions")
+# response=$(curl \
+#   -u "${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}" \
+#   -H 'Accept: application/json' \
+#   "${JIRA_BASE_URL}/rest/api/2/issue/${TICKET_ID}/transitions")
 
 # if echo "$response" | grep -q "\"key\":\"${TICKET_ID}\""; then
 #   echo "::set-output name=exists::true"
