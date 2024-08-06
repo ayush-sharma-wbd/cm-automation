@@ -43,7 +43,7 @@ runs:
         JIRA_API_TOKEN: ${{inputs.jira-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
         TICKET_ID: ${{inputs.ticket-id}}
-      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
+      run: ${{github.action_path}}/../scripts/change-status.sh "$TICKET_ID"
     
     - name: Change Status Of JIRA Ticket
       if: steps.check-ticket.outputs.exists == 'true'
