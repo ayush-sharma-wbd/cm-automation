@@ -11,7 +11,7 @@ inputs:
     required: true
   jira-username:
     description: Username Of JIRA Account
-    required: true
+    required: trues
   jira-token:
     description: API Token
     required: true

@@ -14,7 +14,7 @@ fi
 
 TICKET_ID=$1
 
-source ./check-ticket.sh $TICKET_ID
+source "${GITHUB_ACTION_PATH}/../scripts/check-ticket.sh" "$TICKET_ID"
 exit_code=$?
 
 # If Ticket Does'nt Exist
