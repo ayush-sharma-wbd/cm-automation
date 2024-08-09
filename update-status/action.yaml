@@ -19,10 +19,14 @@ inputs:
     type: string
     default: https://wbdstreaming.atlassian.net
 
-# outputs:
-#   updated-cmr-status:
-#     description: Updated CMR Status
-#     value: ${{steps.update-cmr-status.outputs}}
+outputs:
+  ticket-exists:
+    description: Whether the ticket exists or not on the Jira instance
+    value: ${{ steps.update-cmr-status.outputs.exists }}
+  project-id:
+    description: Denotes the project id of which the ticket is part of
+    value: ${{ steps.update-cmr-status.outputs.project-id}}
+
 
 runs:
   using: composite

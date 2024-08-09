@@ -14,36 +14,50 @@ fi
 
 TICKET_ID=$1
 
-# Check If Ticket Exists
-response=$(curl -s -u "${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}" \
-  -X GET -H 'Accept: application/json' \
-  "${JIRA_BASE_URL}/rest/api/2/issue/${TICKET_ID}")
+source ./check-ticket.sh $TICKET_ID
+exit_code=$?
 
-error_message=$(echo "$response" | jq -r '.errorMessages[0] // empty')
-
-if [[ -n "$error_message" ]]; then
-  echo "Error: $error_message"
+# If Ticket Does'nt Exist
+if [ $exit_code -ne 0 ]; then
+  echo "Inner script failed with exit_code $exit_code. Exiting."
   exit 1
 fi
 
 # Fetch Status Of Ticket 
-ticket_status_response=$(curl \
+output_json=$(mktemp)
+status_code=$(curl --silent \
   -u "${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}" \
   -X GET \
   -H 'Accept: application/json' \
-  "${JIRA_BASE_URL}/rest/api/2/issue/${TICKET_ID}?fields=status" | jq . )
+  -o "$output_json" -w '%{http_code}' \
+  "${JIRA_BASE_URL}/rest/api/2/issue/${TICKET_ID}?fields=status")
 
-echo "$ticket_status_response"
+# Check if the status code is 200
+if [[ $status_code -eq 200 ]]; then
+  # Extract the status name from the JSON response
+  status_name=$(jq -r '.fields.status.name' "$output_json")
 
-# Check if the status name is "Change Approved"
-status_name=$(echo "$response" | jq -r '.fields.status.name')
+  if [[ "$status_name" == "Change Approved" ]]; then
+    echo "The CMR Ticket Is In Approved State. Transitioning It Into In Progress Mode ..."
+    transition_output_json=$(mktemp)
+    transition_status_code=$(curl --silent -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+      -X POST \
+      --data '{"transition":{"id":"71"}}' \
+      -H "Content-Type: application/json" \
+      -o "$transition_output_json" -w '%{http_code}' \
+      "$JIRA_BASE_URL/rest/api/2/issue/$TICKET_ID/transitions")
 
-if [[ "$status_name" == "Change Approved" ]]; then
-  echo "The CMR Ticket Is Approved. Transitioning It Into In Progress Mode ..."
-  transition_resp=$(curl -u $JIRA_USER_EMAIL:$JIRA_API_TOKEN -X POST --data '{"transition":{"id":"71"}}' -H "Content-Type: application/json" "$JIRA_BASE_URL/rest/api/2/issue/$TICKET_ID/transitions" | jq .)  
-  echo $transition_resp
-  echo "Transition Successfull"
+    if [[ $transition_status_code -eq 204 ]]; then
+      echo "Transition Successfull !!"
+    else
+      echo "::error::Transitioning status of the ticket \"$TICKET_ID\" failed with status code $transition_status_code."
+      exit 1      
+    fi
+  else
+    echo "The CMR Ticket Is Not In Approved State. Please Check !!"
+    exit 1
+  fi
 else
-  echo "The CMR Ticket Is Not Approved."
+  echo "::error::Fetching status of the ticket \"$TICKET_ID\" failed with status code $status_code."
   exit 1
 fi
