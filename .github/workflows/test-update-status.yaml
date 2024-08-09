@@ -23,7 +23,14 @@
         steps:
           - name: Checkout
             uses: actions/checkout@v4
-    
+          - name: Set Variables for workflow_dispatch
+            if: ${{ github.event_name == 'workflow_dispatch' }}
+            run: |
+              echo "TICKET_ID=${{ github.event.inputs.TICKET_ID }}" >> $GITHUB_ENV
+          
+          - name: Make the script executable
+            run: chmod +x ./scripts/update-status.sh
+          
           - name: Check For CMR Status And Update It
             uses: ./update-status
             with:
