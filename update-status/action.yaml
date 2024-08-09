@@ -19,10 +19,10 @@ inputs:
     type: string
     default: https://wbdstreaming.atlassian.net
 
-outputs:
-  updated-cmr-status:
-    description: Updated CMR Status
-    value: ${{steps.update-cmr-status.outputs}}
+# outputs:
+#   updated-cmr-status:
+#     description: Updated CMR Status
+#     value: ${{steps.update-cmr-status.outputs}}
 
 runs:
   using: composite
