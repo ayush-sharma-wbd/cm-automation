@@ -35,6 +35,6 @@
             uses: ./update-status
             with:
               ticket-id: ${{ inputs.TICKET_ID }}
-              jira-username: ${{ secrets.JIRA_API_USERNAME }}
+              jira-username: ${{ secrets.JIRA_USER_EMAIL }}
               jira-token: ${{ secrets.JIRA_API_TOKEN }}
               
