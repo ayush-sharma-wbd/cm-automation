@@ -1,0 +1,34 @@
+---
+    name: test action-jira-update-status
+    
+    on:
+      workflow_dispatch:
+        inputs:
+          TICKET_ID:
+            description: JIRA Ticket To Check For CMR And Update Status
+            required: true
+            type: string
+            default: RDE-6888
+    
+    jobs:
+      manual-test:
+        if: github.event_name == 'workflow_dispatch'
+        runs-on: ubuntu-latest
+        defaults:
+          run:
+            shell: bash
+        permissions:
+          id-token: write
+          contents: read
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+    
+          - name: Check For CMR Status And Update It
+            uses: ./update-status
+            with:
+              ticket-id: ${{ inputs.TICKET_ID }}
+              jira-username: ${{ secrets.JIRA_API_USERNAME }}
+              jira-token: ${{ secrets.JIRA_API_TOKEN }}
+              
+    
