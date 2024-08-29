@@ -7,12 +7,15 @@ if [[ "$JIRA_USER_EMAIL" == "" || "$JIRA_API_TOKEN" == "" || "$JIRA_BASE_URL" ==
 fi
 
 # Ensure Number Of Paramters Passed In The Script Are Correct
-if [[ $# -ne 1 ]]; then
+if [[ $# -ne 2 ]]; then
   echo "::error::script given $# positional parameters when 2 are required: <ticket ID> "
   exit 1
 fi
 
 TICKET_ID=$1
+ROLLBACK_FLAG=$2
+
+echo $ROLLBACK_FLAG
 
 source "${GITHUB_ACTION_PATH}/../scripts/check-ticket.sh" "$TICKET_ID"
 exit_code=$?

@@ -1,0 +1,73 @@
+name: jira-cm-ticket
+
+description: Deployment Pipeline Gate Based On CM Ticket Status
+
+inputs:
+  ticket-id:
+    description: Ticket ID
+    required: true
+
+outputs:
+  ticket-exists:
+    description: If Ticket Exists
+    value: ${{steps.check-ticket.outputs.exists}}
+
+runs:
+  using: composite
+  steps:
+
+    # Fail Close If Credentials Not Found
+    - uses: atlassian/gajira-login@45fd029b9f1d6d8926c6f04175aa80c0e42c9026  # Logs In To JIRA
+      env:
+        JIRA_BASE_URL: ${{ inputs.jira-base-url }}
+        JIRA_USER_EMAIL: ${{ inputs.jira-username }}
+        JIRA_API_TOKEN: ${{ inputs.jira-token }}
+
+
+    - uses: atlassian/gajira-cli@ec286a2b00ebe4cde39f12d888f641411d446723 # Installs JIRA CLI
+      with:
+        version: 1.0.27
+
+    # Fail Close If CM Ticket Not Found
+    - name: Check If Ticket Exists
+      id: check-ticket
+      shell: bash
+      env:
+        JIRA_USER_EMAIL: ${{secrets.JIRA_USER_EMAIL}}
+        JIRA_API_TOKEN: ${{secrets.JIRA_API_TOKEN}}
+        JIRA_BASE_URL: ${{secrets.JIRA_BASE_URL}}
+        TICKET_ID: ${{inputs.ticket-id}}
+      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
+    
+    # Check For CM Ticket Status And Update It To In Progress
+    - name: Update CM Ticket Status To In Progress
+      id: update-status
+      shell: bash
+      env:
+        JIRA_USER_EMAIL: ${{inputs.jira-username}}
+        JIRA_API_TOKEN: ${{inputs.jira-token}}
+        JIRA_BASE_URL: ${{inputs.jira-base-url}}
+      run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID"
+
+    # If CM Ticket Status -> Updated, Comment On Ticket
+    - name: Comment on Jira ticket
+      id: comment
+      if: steps.check-ticket.outputs.exists == 'true'
+      shell: bash
+      env:
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        TICKET_ID: ${{ inputs.ticket-id }}
+        WORKFLOW_EXECUTOR: ${{ github.actor }}  # GitHub Actions context variable for the user
+        CURRENT_TIME: $(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Current time in UTC
+      run: |
+        COMMENT="$WORKFLOW_EXECUTOR triggered release cadence at $CURRENT_TIME with the following paramenters"
+        echo "Commenting on Jira ticket $TICKET_ID with the following comment:"
+        echo "$COMMENT"
+        jira comment --noedit "$TICKET_ID" --comment="$COMMENT"
+        exit_code=$?
+        if [[ $exit_code -ne 0 ]]; then
+          echo "::error::non-zero exit code: $exit_code"
+          exit 1
+        fi

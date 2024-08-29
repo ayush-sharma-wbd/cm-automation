@@ -7,17 +7,6 @@ inputs:
   ticket-id:
     description: Ticket ID
     required: true
-  jira-username:
-    description: Username Of JIRA Account
-    required: true
-  jira-token:
-    description: API Token
-    required: true
-  jira-base-url:
-    description: The URL of the Jira instance to access
-    required: false
-    type: string
-    default: https://wbdstreaming.atlassian.net
 
 outputs:
   ticket-exists:
