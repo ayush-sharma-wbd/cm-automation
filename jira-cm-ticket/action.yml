@@ -55,7 +55,6 @@ runs:
     # Conditionally Update CM Ticket Status To In Progress
     - name: Update CM Ticket Status To In Progress
       id: update-status
-      if: ${{ inputs.is-rollback == 'false' }}
       shell: bash
       env:
         JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
