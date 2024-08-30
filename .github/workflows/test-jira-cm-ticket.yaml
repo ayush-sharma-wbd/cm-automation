@@ -1,43 +1,60 @@
----
-    name: test action-jira-cm-ticket
-    
-    on:
-      workflow_dispatch:
-        inputs:
-          TICKET_ID:
-            description: JIRA Ticket ID
-            required: true
-            type: string
-            default: RDE-6888
-    
-    jobs:
-      manual-test:
-        if: github.event_name == 'workflow_dispatch'
-        runs-on: ubuntu-latest
-        defaults:
-          run:
-            shell: bash
-        permissions:
-          id-token: write
-          contents: read
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-          - name: Set Variables for workflow_dispatch
-            if: ${{ github.event_name == 'workflow_dispatch' }}
-            run: |
-              echo "TICKET_ID=${{ github.event.inputs.TICKET_ID }}" >> $GITHUB_ENV
-          
-          - name: Make the scripts executable
-            run: |
-                chmod +x ./scripts/update-status.sh
-                chmod +x ./scripts/check-ticket.sh
-          
-          - name: Deployment Gate Based On JIRA CM Ticket
-            uses: ./jira-cm-ticket
-            with:
-              ticket-id: ${{ inputs.TICKET_ID }}
-              jira-api-username: ${{ secrets.JIRA_API_USERNAME }}
-              jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
-              jira-base-url: ${{ secrets.JIRA_BASE_URL }}
-              
+name: test action-jira-cm-ticket
+
+on:
+  workflow_dispatch:
+    inputs:
+      TICKET_ID:
+        description: JIRA Ticket ID
+        required: true
+        type: string
+        default: RDE-6888
+
+jobs:
+  manual-test:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set Variables for workflow_dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "TICKET_ID=${{ github.event.inputs.TICKET_ID }}" >> $GITHUB_ENV
+      
+      - name: Make the scripts executable
+        run: |
+          chmod +x ./scripts/update-status.sh
+          chmod +x ./scripts/check-ticket.sh
+      
+      - name: Deployment Gate Based On JIRA CM Ticket
+        uses: ./jira-cm-ticket
+        with:
+          ticket-id: ${{ inputs.TICKET_ID }}
+          jira-api-username: ${{ secrets.JIRA_API_USERNAME }}
+          jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
+          jira-base-url: ${{ secrets.JIRA_BASE_URL }}
+
+      - name: Dummy Step
+        run: echo "This is a dummy step for testing purposes."
+
+  dummy-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dummy Step 1
+        run: echo "This is the first dummy step in a separate job."
+
+      - name: Dummy Step 2
+        run: echo "This is the second dummy step in a separate job."
+
+      - name: Dummy Step 3
+        run: |
+          echo "This is the third dummy step in a separate job."
+          # Simulate a failure to test job breakouts
+          exit 1
