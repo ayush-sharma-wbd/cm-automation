@@ -1,4 +1,4 @@
-name: Test JIRA Comment Action
+name: test-comment
 
 on:
   workflow_dispatch:

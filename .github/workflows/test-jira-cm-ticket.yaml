@@ -1,5 +1,5 @@
 
-name: Test Workflow For jira-cm-ticket action
+name: test-jira-cm-ticket
 
 on:
   workflow_dispatch:
