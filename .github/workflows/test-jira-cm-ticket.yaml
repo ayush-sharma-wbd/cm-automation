@@ -35,8 +35,9 @@ jobs:
       
       - name: Make the scripts executable
         run: |
-          chmod +x ./scripts/update-status.sh
+          chmod +x ./scripts/update-cm-ticket.sh
           chmod +x ./scripts/check-ticket.sh
+          chmod +x ./scripts/check-cm-ticket.sh
       
       - name: Deployment Gate Based On JIRA CM Ticket
         uses: ./jira-cm-ticket
