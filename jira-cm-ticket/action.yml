@@ -85,7 +85,7 @@ runs:
     - name: Comment on JIRA Ticket
       uses: ./comment
       with:
-        ticket-id: ${{ inputs.TICKET_ID }}
+        ticket-id: ${{ inputs.ticket-id }}
         comment: "Deployment triggered at ${{ github.event.head_commit.timestamp }} by ${{ github.actor }}"
         jira-username: ${{ inputs.jira-api-username }}
         jira-token: ${{ inputs.jira-api-token }}
