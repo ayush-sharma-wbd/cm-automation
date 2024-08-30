@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Ensure Jira Secrets Are Available
-if [[ "$JIRA_USER_EMAIL" == "" || "$JIRA_API_TOKEN" == "" || "$JIRA_BASE_URL" == "" ]]; then
+if [[ -z "$JIRA_USER_EMAIL" || -z "$JIRA_API_TOKEN" || -z "$JIRA_BASE_URL" ]]; then
   echo "::error::script requires the following env vars to be exported: JIRA_USER_EMAIL, JIRA_API_TOKEN, JIRA_BASE_URL"
   exit 1
 fi
 
-# Ensure Number Of Paramters Passed In The Script Are Correct
+# Ensure Number Of Parameters Passed In The Script Are Correct
 if [[ $# -ne 2 ]]; then
   echo "::error::script given $# positional parameters when 2 are required: <ticket ID> "
   exit 1
@@ -16,12 +16,12 @@ TICKET_ID=$1
 ROLLBACK_FLAG=$2
 
 # 1 denotes Rollback
-echo $ROLLBACK_FLAG
+echo "$ROLLBACK_FLAG"
 
 # source "${GITHUB_ACTION_PATH}/../scripts/check-cm-ticket.sh" "$TICKET_ID"
 # exit_code=$?
 
-# If Ticket Does'nt Exist
+# If Ticket Doesn't Exist
 # if [ $exit_code -ne 0 ]; then
 #   echo "Inner script failed with exit_code $exit_code. Exiting."
 #   exit 1
@@ -41,7 +41,7 @@ if [[ $status_code -eq 200 ]]; then
   # Extract the status name from the JSON response
   status_name=$(jq -r '.fields.status.name' "$output_json")
 
-  if [[ "$ROLLBACK_FLAG" = "false" ]]
+  if [[ "$ROLLBACK_FLAG" == "false" ]]; then
     if [[ "$status_name" == "Change Approved" ]]; then
       echo "The CM Ticket Is In Approved State. Transitioning It Into In Progress Mode ..."
 
@@ -54,10 +54,10 @@ if [[ $status_code -eq 200 ]]; then
         "$JIRA_BASE_URL/rest/api/2/issue/$TICKET_ID/transitions")
 
       if [[ $transition_status_code -eq 204 ]]; then
-        echo "Transition Successfull !!"
+        echo "Transition Successful !!"
       else
         echo "::error::Transitioning status of the ticket \"$TICKET_ID\" failed with status code $transition_status_code."
-        exit 1      
+        exit 1
       fi
     else
       echo "::error::The CM Ticket Is Not In Approved State. Please Check !!"
