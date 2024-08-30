@@ -70,6 +70,7 @@ if [[ $status_code -eq 200 ]]; then
     else
       echo "::warning::The CM ticket is not in a state suitable for the current operation. Current state: $status_name. Please verify the ticket's state."
     fi
+  fi
 else
   echo "::error::Fetching status of the ticket \"$TICKET_ID\" failed with status code $status_code."
   exit 1
