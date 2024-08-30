@@ -60,24 +60,33 @@ runs:
       run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID" 1
 
       # If CM Ticket Status -> Updated, Comment On Ticket
-    - name: Comment on Jira ticket
-      id: comment
-      if: steps.check-ticket.outputs.exists == 'true'
-      shell: bash
-      env:
-        JIRA_API_USERNAME: ${{ inputs.jira-api-username }}
-        JIRA_API_TOKEN: ${{ inputs.jira-api-token }}
-        JIRA_BASE_URL: ${{ inputs.jira-base-url }}
-        TICKET_ID: ${{ inputs.ticket-id }}
-        WORKFLOW_EXECUTOR: ${{ github.actor }}  # GitHub Actions context variable for the user
-      run: |
-        CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Calculate current time in UTC
-        COMMENT="$WORKFLOW_EXECUTOR triggered release cadence at $CURRENT_TIME with the following parameters"
-        echo "Commenting on Jira ticket $TICKET_ID with the following comment:"
-        echo "$COMMENT"
-        jira comment --noedit "$TICKET_ID" --comment="$COMMENT"
-        exit_code=$?
-        if [[ $exit_code -ne 0 ]]; then
-          echo "::error::non-zero exit code: $exit_code"
-          exit 1
-        fi
+    # - name: Comment on Jira ticket
+    #   id: comment
+    #   if: steps.check-ticket.outputs.exists == 'true'
+    #   shell: bash
+    #   env:
+    #     JIRA_API_USERNAME: ${{ inputs.jira-api-username }}
+    #     JIRA_API_TOKEN: ${{ inputs.jira-api-token }}
+    #     JIRA_BASE_URL: ${{ inputs.jira-base-url }}
+    #     TICKET_ID: ${{ inputs.ticket-id }}
+    #     WORKFLOW_EXECUTOR: ${{ github.actor }}  # GitHub Actions context variable for the user
+    #   run: |
+    #     CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Calculate current time in UTC
+    #     COMMENT="$WORKFLOW_EXECUTOR triggered release cadence at $CURRENT_TIME with the following parameters"
+    #     echo "Commenting on Jira ticket $TICKET_ID with the following comment:"
+    #     echo "$COMMENT"
+    #     jira comment --noedit "$TICKET_ID" --comment="$COMMENT"
+    #     exit_code=$?
+    #     if [[ $exit_code -ne 0 ]]; then
+    #       echo "::error::non-zero exit code: $exit_code"
+    #       exit 1
+    #     fi
+
+    - name: Comment on JIRA Ticket
+      uses: ./comment
+      with:
+        ticket-id: ${{ inputs.TICKET_ID }}
+        comment: "Deployment triggered at ${{ github.event.head_commit.timestamp }} by ${{ github.actor }}"
+        jira-username: ${{ inputs.jira-api-username }}
+        jira-token: ${{ inputs.jira-api-token }}
+        jira-base-url: ${{ inputs.jira-base-url }}

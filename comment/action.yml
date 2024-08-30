@@ -1,53 +1,60 @@
+---
 name: action-jira-comment
 
-description: Post A Comment In A JIRA Ticket
+description: Add a comment to a Jira ticket
 
 inputs:
   ticket-id:
-    description: Ticket ID
+    description: ID of the Jira ticket to comment on
     required: true
+    type: string
   comment:
-    description: Actual Comment
+    description: The comment to add to the ticket
     required: true
+    type: string
   jira-username:
-    description: Username Of JIRA Account
-    required: trues
+    description: Username of the ticket editor
+    required: true
+    type: string
   jira-token:
-    description: API Token
+    description: Authentication token to access Jira
     required: true
+    type: string
   jira-base-url:
-    description: Base URL Of JIRA Instance
-    required: true
+    description: The URL of the Jira instance to access
+    required: false
+    type: string
+    default: https://wbdstreaming.atlassian.net
 
 outputs:
   ticket-exists:
-    description: If Ticket Exists
-    value: ${{steps.check-ticket.outputs.exists}}
+    description: Whether the ticket exists or not on the Jira instance
+    value: ${{ steps.check-ticket.outputs.exists }}
 
 runs:
   using: composite
   steps:
+    - name: Check if ticket exists
+      id: check-ticket
+      shell: bash
+      env:
+        JIRA_USER_EMAIL: ${{ inputs.jira-username }}
+        JIRA_API_TOKEN: ${{ inputs.jira-token }}
+        JIRA_BASE_URL: ${{ inputs.jira-base-url }}
+        TICKET_ID: ${{ inputs.ticket-id }}
+      run: |
+        ${{ github.action_path }}/../scripts/check-ticket.sh "$TICKET_ID"
 
-    - uses: atlassian/gajira-login@45fd029b9f1d6d8926c6f04175aa80c0e42c9026  # Logs In To JIRA
+    - uses: atlassian/gajira-login@45fd029b9f1d6d8926c6f04175aa80c0e42c9026 # commit SHA for tag v3.0.1
       env:
         JIRA_BASE_URL: ${{ inputs.jira-base-url }}
         JIRA_USER_EMAIL: ${{ inputs.jira-username }}
         JIRA_API_TOKEN: ${{ inputs.jira-token }}
 
-    - uses: atlassian/gajira-cli@ec286a2b00ebe4cde39f12d888f641411d446723 # Installs JIRA CLI
+    - uses: atlassian/gajira-cli@ec286a2b00ebe4cde39f12d888f641411d446723 # commit SHA for tag v3.0.1
       with:
         version: 1.0.27
 
-    - name: Check If Ticket Exists
-      id: check-ticket
-      shell: bash
-      env:
-        JIRA_USER_EMAIL: ${{inputs.jira-username}}
-        JIRA_API_TOKEN: ${{inputs.jira-token}}
-        JIRA_BASE_URL: ${{inputs.jira-base-url}}
-        TICKET_ID: ${{inputs.ticket-id}}
-      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
-    
     - name: Comment on Jira ticket
       if: steps.check-ticket.outputs.exists == 'true'
       shell: bash
