@@ -41,7 +41,7 @@ if [[ $status_code -eq 200 ]]; then
   # Extract the status name from the JSON response
   status_name=$(jq -r '.fields.status.name' "$output_json")
 
-  if [[ $ROLLBACK_FLAG -eq 0 ]]
+  if [[ "$ROLLBACK_FLAG" = "false" ]]
     if [[ "$status_name" == "Change Approved" ]]; then
       echo "The CM Ticket Is In Approved State. Transitioning It Into In Progress Mode ..."
 

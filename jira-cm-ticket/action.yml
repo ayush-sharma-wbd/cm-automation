@@ -61,8 +61,9 @@ runs:
         JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
+        IS_ROLLBACK: ${{ inputs.is-rollback }}
       run: |
-        ${{ github.action_path }}/../scripts/update-cm-ticket.sh "$TICKET_ID" ${{ inputs.is-rollback ? 1 : 0 }}
+        ${{ github.action_path }}/../scripts/update-cm-ticket.sh "$TICKET_ID" "$IS_ROLLBACK"
     
     # Calculate Current UTC Time and Format Comment
     - name: Calculate Current UTC Time and Format Comment
