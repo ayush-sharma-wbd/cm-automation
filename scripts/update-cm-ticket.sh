@@ -42,7 +42,7 @@ if [[ $status_code -eq 200 ]]; then
   status_name=$(jq -r '.fields.status.name' "$output_json")
 
   if [[ "$ROLLBACK_FLAG" == "false" ]]; then
-    if [[ "$status_name" == "Change Approved"]]; then
+    if [[ "$status_name" == "Change Approved" ]]; then
       echo "The CM Ticket Is In Approved State. Transitioning It Into In Progress Mode ..."
 
       transition_output_json=$(mktemp)
