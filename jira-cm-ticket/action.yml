@@ -59,7 +59,7 @@ runs:
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
       run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID" 1
 
-    # If CM Ticket Status -> Updated, Comment On Ticket
+      # If CM Ticket Status -> Updated, Comment On Ticket
     - name: Comment on Jira ticket
       id: comment
       if: steps.check-ticket.outputs.exists == 'true'
@@ -70,9 +70,9 @@ runs:
         JIRA_BASE_URL: ${{ inputs.jira-base-url }}
         TICKET_ID: ${{ inputs.ticket-id }}
         WORKFLOW_EXECUTOR: ${{ github.actor }}  # GitHub Actions context variable for the user
-        CURRENT_TIME: $(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Current time in UTC
       run: |
-        COMMENT="$WORKFLOW_EXECUTOR triggered release cadence at $CURRENT_TIME with the following paramenters"
+        CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Calculate current time in UTC
+        COMMENT="$WORKFLOW_EXECUTOR triggered release cadence at $CURRENT_TIME with the following parameters"
         echo "Commenting on Jira ticket $TICKET_ID with the following comment:"
         echo "$COMMENT"
         jira comment --noedit "$TICKET_ID" --comment="$COMMENT"
