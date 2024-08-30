@@ -81,12 +81,19 @@ runs:
     #       echo "::error::non-zero exit code: $exit_code"
     #       exit 1
     #     fi
-
+    
+    - name: Calculate Current UTC Time and Format Comment
+      id: format-comment
+      run: |
+        CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        FORMATTED_COMMENT="${{ github.actor }} triggered release cadence at $CURRENT_TIME with the following parameters"
+        echo "FORMATTED_COMMENT=$FORMATTED_COMMENT" >> $GITHUB_ENV
+        
     - name: Comment on JIRA Ticket
       uses: ./comment
       with:
         ticket-id: ${{ inputs.ticket-id }}
-        comment: "Deployment triggered at ${{ github.event.head_commit.timestamp }} by ${{ github.actor }}"
+        comment: ${{ env.FORMATTED_COMMENT }}
         jira-username: ${{ inputs.jira-api-username }}
         jira-token: ${{ inputs.jira-api-token }}
         jira-base-url: ${{ inputs.jira-base-url }}
