@@ -42,7 +42,7 @@ if [[ $status_code -eq 200 ]]; then
   status_name=$(jq -r '.fields.status.name' "$output_json")
 
   if [[ "$ROLLBACK_FLAG" == "false" ]]; then
-    if [[ "$status_name" == "Change Approved" ]]; then
+    if [[ "$status_name" == "Change Approved"]]; then
       echo "The CM Ticket Is In Approved State. Transitioning It Into In Progress Mode ..."
 
       transition_output_json=$(mktemp)
@@ -59,6 +59,8 @@ if [[ $status_code -eq 200 ]]; then
         echo "::error::Transitioning status of the ticket \"$TICKET_ID\" failed with status code $transition_status_code."
         exit 1
       fi
+    elif [[ "$status_name" == "In Progress" ]]; then
+      echo "The CM Ticket is already in In Progress Mode."
     else
       echo "::error::The CM Ticket Is Not In Approved State. Please Check !!"
       exit 1
