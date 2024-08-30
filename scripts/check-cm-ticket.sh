@@ -30,9 +30,11 @@ if [[ "$TICKET_ID" =~ ^[a-zA-Z]+-[0-9]+$ ]]; then
   else
     # TODO check for expected (error) status code: 404; and in the case of an unexpected code: error out
     echo "::warn::the ticket \"$TICKET_ID\" was not accessible on the \"$JIRA_BASE_URL\" Jira instance"
+    return 1
   fi
 else
   echo "::warn::the given input for ticket ID: \"$TICKET_ID\" does not match the expected format, e.g. \"GROUP-##\""
+  exit 1
 fi
 
 echo "exists=$EXISTS" | tee -a "$GITHUB_OUTPUT"

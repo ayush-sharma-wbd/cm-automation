@@ -34,5 +34,5 @@ runs:
         JIRA_USER_EMAIL: ${{inputs.jira-username}}
         JIRA_API_TOKEN: ${{inputs.jira-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
-      run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID"
+      run: ${{github.action_path}}/../scripts/update-cm-status.sh "$TICKET_ID"
     

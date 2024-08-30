@@ -16,6 +16,10 @@ inputs:
   jira-api-username:
     description: JIRA API Username
     required: true
+  is-rollback:
+    description: Flag to denote if the deployment is a Rollback
+    required: true
+    type: boolean
 
 outputs:
   ticket-exists:
@@ -33,7 +37,6 @@ runs:
         JIRA_USER_EMAIL: ${{ inputs.jira-api-username }}
         JIRA_API_TOKEN: ${{ inputs.jira-api-token }}
 
-
     - uses: atlassian/gajira-cli@ec286a2b00ebe4cde39f12d888f641411d446723 # Installs JIRA CLI
       with:
         version: 1.0.27
@@ -47,49 +50,33 @@ runs:
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
         TICKET_ID: ${{inputs.ticket-id}}
-      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
-    
-    # Check For CM Ticket Status And Update It To In Progress
+      run: ${{github.action_path}}/../scripts/check-cm-ticket.sh "$TICKET_ID"
+
+    # Conditionally Update CM Ticket Status To In Progress
     - name: Update CM Ticket Status To In Progress
       id: update-status
+      if: ${{ inputs.is-rollback == 'false' }}
       shell: bash
       env:
         JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
-      run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID" 1
-
-      # If CM Ticket Status -> Updated, Comment On Ticket
-    # - name: Comment on Jira ticket
-    #   id: comment
-    #   if: steps.check-ticket.outputs.exists == 'true'
-    #   shell: bash
-    #   env:
-    #     JIRA_API_USERNAME: ${{ inputs.jira-api-username }}
-    #     JIRA_API_TOKEN: ${{ inputs.jira-api-token }}
-    #     JIRA_BASE_URL: ${{ inputs.jira-base-url }}
-    #     TICKET_ID: ${{ inputs.ticket-id }}
-    #     WORKFLOW_EXECUTOR: ${{ github.actor }}  # GitHub Actions context variable for the user
-    #   run: |
-    #     CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Calculate current time in UTC
-    #     COMMENT="$WORKFLOW_EXECUTOR triggered release cadence at $CURRENT_TIME with the following parameters"
-    #     echo "Commenting on Jira ticket $TICKET_ID with the following comment:"
-    #     echo "$COMMENT"
-    #     jira comment --noedit "$TICKET_ID" --comment="$COMMENT"
-    #     exit_code=$?
-    #     if [[ $exit_code -ne 0 ]]; then
-    #       echo "::error::non-zero exit code: $exit_code"
-    #       exit 1
-    #     fi
+      run: |
+        ${{ github.action_path }}/../scripts/update-cm-ticket.sh "$TICKET_ID" ${{ inputs.is-rollback ? 1 : 0 }}
     
+    # Calculate Current UTC Time and Format Comment
     - name: Calculate Current UTC Time and Format Comment
       id: format-comment
       shell: bash
       run: |
         CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        FORMATTED_COMMENT="${{ github.actor }} triggered release cadence at $CURRENT_TIME with the following parameters"
+        if [ "${{ inputs.is-rollback }}" == "true" ]; then
+          FORMATTED_COMMENT="${{ github.actor }} triggered rollback at $CURRENT_TIME with the following parameters ..."
+        else
+          FORMATTED_COMMENT="${{ github.actor }} triggered release cadence at $CURRENT_TIME with the following parameters ..."
+        fi
         echo "FORMATTED_COMMENT=$FORMATTED_COMMENT" >> $GITHUB_ENV
-        
+
     - name: Comment on JIRA Ticket
       uses: ./comment
       with:

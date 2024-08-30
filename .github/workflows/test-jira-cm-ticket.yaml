@@ -1,4 +1,5 @@
-name: test action-jira-cm-ticket
+
+name: Test Workflow For jira-cm-ticket action
 
 on:
   workflow_dispatch:
@@ -8,7 +9,11 @@ on:
         required: true
         type: string
         default: RDE-6888
-
+      IS_ROLLBACK:
+        description: Rollback Flag
+        required: true
+        type: boolean
+        default: false
 jobs:
   manual-test:
     if: github.event_name == 'workflow_dispatch'
@@ -40,6 +45,7 @@ jobs:
           jira-api-username: ${{ secrets.JIRA_API_USERNAME }}
           jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
           jira-base-url: ${{ secrets.JIRA_BASE_URL }}
+          is-rollback: ${{ inputs.IS_ROLLBACK }}
 
       - name: Dummy Step
         run: echo "This is a dummy step for testing purposes."
