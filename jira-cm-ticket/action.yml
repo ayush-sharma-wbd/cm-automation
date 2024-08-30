@@ -84,6 +84,7 @@ runs:
     
     - name: Calculate Current UTC Time and Format Comment
       id: format-comment
+      shell: bash
       run: |
         CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         FORMATTED_COMMENT="${{ github.actor }} triggered release cadence at $CURRENT_TIME with the following parameters"
