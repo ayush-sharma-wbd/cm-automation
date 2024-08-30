@@ -47,7 +47,7 @@ runs:
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
         TICKET_ID: ${{inputs.ticket-id}}
-      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID"
+      run: ${{github.action_path}}/../scripts/check-ticket.sh "$TICKET_ID" 1
     
     # Check For CM Ticket Status And Update It To In Progress
     - name: Update CM Ticket Status To In Progress
@@ -57,7 +57,7 @@ runs:
         JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
-      run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID"
+      run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID" 1
 
     # If CM Ticket Status -> Updated, Comment On Ticket
     - name: Comment on Jira ticket
