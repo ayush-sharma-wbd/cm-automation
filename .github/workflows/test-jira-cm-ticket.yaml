@@ -37,4 +37,7 @@
             uses: ./jira-cm-ticket
             with:
               ticket-id: ${{ inputs.TICKET_ID }}
+              jira-api-username: ${{ secrets.JIRA_API_USERNAME }}
+              jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
+              jira-base-url: ${{ secrets.JIRA_BASE_URL }}
               
