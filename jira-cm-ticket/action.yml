@@ -30,7 +30,7 @@ runs:
     - uses: atlassian/gajira-login@45fd029b9f1d6d8926c6f04175aa80c0e42c9026  # Logs In To JIRA
       env:
         JIRA_BASE_URL: ${{ inputs.jira-base-url }}
-        JIRA_API_USERNAME: ${{ inputs.jira-api-username }}
+        JIRA_USER_EMAIL: ${{ inputs.jira-api-username }}
         JIRA_API_TOKEN: ${{ inputs.jira-api-token }}
 
 
@@ -43,7 +43,7 @@ runs:
       id: check-ticket
       shell: bash
       env:
-        JIRA_API_USERNAME: ${{inputs.jira-api-username}}
+        JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
         TICKET_ID: ${{inputs.ticket-id}}
@@ -54,7 +54,7 @@ runs:
       id: update-status
       shell: bash
       env:
-        JIRA_API_USERNAME: ${{inputs.jira-api-username}}
+        JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
         JIRA_API_TOKEN: ${{inputs.jira-api-token}}
         JIRA_BASE_URL: ${{inputs.jira-base-url}}
       run: ${{github.action_path}}/../scripts/update-status.sh "$TICKET_ID"
