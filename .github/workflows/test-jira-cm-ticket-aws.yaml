@@ -1,0 +1,49 @@
+---
+    name: action-jira-cm-ticket
+    
+    on:
+      workflow_dispatch:
+        inputs:
+          TICKET_ID:
+            description: JIRA CM Ticket ID
+            required: true
+            type: string
+            default: RDE-6888
+          IS_ROLLBACK:
+            description: Rollback Flag
+            required: true
+            type: boolean
+            default: false
+    jobs:
+      cm-ticket:
+        if: github.event_name == 'workflow_dispatch'
+        runs-on: ubuntu-latest
+        defaults:
+          run:
+            shell: bash
+        permissions:
+          id-token: write
+          contents: read
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+          
+          - name: Set Variables for workflow_dispatch
+            if: ${{ github.event_name == 'workflow_dispatch' }}
+            run: |
+              echo "TICKET_ID=${{ github.event.inputs.TICKET_ID }}" >> $GITHUB_ENV
+          
+          - name: Make the scripts executable
+            run: |
+              chmod +x ./scripts/update-cm-ticket.sh
+              chmod +x ./scripts/check-ticket.sh
+              chmod +x ./scripts/check-cm-ticket.sh
+          
+          - name: Deployment Gate based on JIRA CM Ticket
+            uses: ./jira-cm-ticket
+            with:
+              ticket-id: ${{ inputs.TICKET_ID }}
+              jira-api-username: ${{ secrets.JIRA_API_USERNAME }}
+              jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
+              jira-base-url: 'https://wbdstreaming.atlassian.net/'
+              is-rollback: ${{ inputs.IS_ROLLBACK }}

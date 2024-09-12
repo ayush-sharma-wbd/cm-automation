@@ -24,7 +24,7 @@ inputs:
 outputs:
   ticket-exists:
     description: If Ticket Exists
-    value: ${{steps.check-ticket.outputs.exists}}
+    value: ${{steps.check-cm-ticket.outputs.exists}}
 
 runs:
   using: composite
@@ -37,13 +37,9 @@ runs:
         JIRA_USER_EMAIL: ${{ inputs.jira-api-username }}
         JIRA_API_TOKEN: ${{ inputs.jira-api-token }}
 
-    - uses: atlassian/gajira-cli@ec286a2b00ebe4cde39f12d888f641411d446723 # Installs JIRA CLI
-      with:
-        version: 1.0.27
-
     # Fail Close If CM Ticket Not Found
     - name: Check If Ticket Exists
-      id: check-ticket
+      id: check-cm-ticket
       shell: bash
       env:
         JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
@@ -54,7 +50,7 @@ runs:
 
     # Conditionally Update CM Ticket Status To In Progress
     - name: Update CM Ticket Status To In Progress
-      id: update-status
+      id: update-cm-ticket
       shell: bash
       env:
         JIRA_USER_EMAIL: ${{inputs.jira-api-username}}
